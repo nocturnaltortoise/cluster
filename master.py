@@ -1,4 +1,3 @@
-from functools import reduce
 from worker import Worker
 
 
@@ -8,13 +7,12 @@ class Master:
         self.input_data = [x for x in range(1000)]
 
     def split_between_workers(self):
-        data_size = len(self.input_data)
         num_workers = len(self.workers)
 
         data_chunks = Master.chunk_data(self.input_data, num_workers, [])
 
-        for i, worker in enumerate(self.workers):
-            worker.worker_data = data_chunks[i]
+        for i, worker_node in enumerate(self.workers):
+            worker_node.worker_data = data_chunks[i]
 
     @staticmethod
     def chunk_data(data_to_chunk, num_workers, data_chunks):
@@ -42,13 +40,13 @@ class Master:
 
     def map_reduce(self):
         reduced_data = []
-        for worker in self.workers:
-            worker.map_func = lambda x: x * 5
-            worker.reduce_func = lambda x,y: x if x > y else y
+        for worker_node in self.workers:
+            worker_node.map_func = lambda x: x * 5
+            worker_node.reduce_func = lambda x, y: x if x > y else y
 
-            worker.worker_data = worker.apply_map()
-            worker.worker_data = [worker.apply_reduce()]
-            reduced_data.append(worker.worker_data)
+            worker_node.worker_data = worker_node.apply_map()
+            worker_node.worker_data = [worker_node.apply_reduce()]
+            reduced_data.append(worker_node.worker_data)
 
         if len(reduced_data) > 1:
             available_worker = self.workers[0]
@@ -60,8 +58,8 @@ class Master:
             return reduced_data
 
 
-master = Master(7)
-master.split_between_workers()
-print(master.map_reduce())
-for worker in master.workers:
+MASTER = Master(7)
+MASTER.split_between_workers()
+print(MASTER.map_reduce())
+for worker in MASTER.workers:
     print(worker)
